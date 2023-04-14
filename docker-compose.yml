@@ -19,6 +19,7 @@ services:
       - COUCHBASE_RAM_SIZE=2048
       - COUCHBASE_INDEX_RAM_SIZE=512
     hostname: couchbase-server
+    restart: always
     working_dir: /opt/couchbase
     stdin_open: true
     tty: true
@@ -27,12 +28,42 @@ services:
     entrypoint: [""]
     command: sh -c "/opt/couchbase/init/init-cbserver.sh"
 
+  couchbase2:
+    build: ./couchbase-server
+    container_name: couchbase2
+    restart: always
+    working_dir: /opt/couchbase
+    stdin_open: true
+    tty: true
+    networks:
+      - couchbase-net
+    links:
+      - "couchbase-server:couchbase"
+    depends_on:
+      - couchbase-server
+
+
+  couchbase3:
+    build: ./couchbase-server
+    container_name: couchbase3
+    restart: always
+    working_dir: /opt/couchbase
+    stdin_open: true
+    tty: true
+    networks:
+      - couchbase-net
+    links:
+      - "couchbase-server:couchbase"
+    depends_on:
+      - couchbase-server
+
   sync-gateway:
     build: ./sync-gateway
     container_name: sync-gateway
     ports:
       - 4984-4986:4984-4986
     hostname: sync-gateway
+    restart: always
     depends_on:
       - couchbase-server
     working_dir: /docker-syncgateway
